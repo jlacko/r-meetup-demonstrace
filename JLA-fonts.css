@@ -1,10 +1,21 @@
-@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
 @import url(https://cdn.rawgit.com/tonsky/FiraCode/1.204/distr/fira_code.css);
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,700,400italic);
 
-body { font-family: 'Roboto', serif; color: #191970; }
-h1 {font-family: 'Roboto'; font-weight: bold; color: #191970;}
-h2, h3 {font-family: 'Roboto'; font-weight: normal; color:#191970;}
+/* hlavní font */
+body { font-family: 'Roboto', serif; color: #191970; margin-top: -7px; margin-bottom: -7px;}
+
+/* H1 = nadpis slidu */
+h1 {font-family: 'Roboto'; font-weight: bold; color: #191970; }
+
+/* H2, H3 = menší nadpisy */
+h2 {font-family: 'Roboto'; font-weight: normal; color:#191970; margin-top: -5px;} 
+h3 {font-family: 'Roboto'; font-weight: normal; color:#191970; margin-top: -5px; margin-bottom: -2px;} 
+
+/* erkový skript ve Fira Code, protože je prostě boží... :) */
 .remark-code, .remark-inline-code { font-family: 'Fira Code', monospace; }
 
+/* reverzní barva tmavě modrá */
 .inverse {background-color: #191970;}
+
+/* první slajd bez čísla */
+.title-slide .remark-slide-number {display: none;}                                       

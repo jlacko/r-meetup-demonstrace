@@ -1,8 +1,8 @@
 ---
-title: "Jak naplánovat demonstraci?"
-subtitle: 'sedmý R meetup Praha'
-author: "Jindra Lacko"
-date: "15.6.2018 KPMG"
+title: 'Jak naplánovat demonstraci?'
+subtitle: 'sedmý *Prague R Meetup*'
+author: '[Jindra Lacko](mailto:jindra@jla-data.net)'
+date: '<br>15.6.2018 @ KPMG'
 output:
   xaringan::moon_reader:
     css: ["default", "JLA-fonts.css"]
@@ -15,24 +15,183 @@ output:
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
+library(sf)
+library(tmap)
+library(RCzechia)
+library(tidyverse)
+library(RColorBrewer)
+library(dbplyr)
+library(RPostgreSQL)
+
 ```
 
 # Agenda
 
-### fsad
-Quo usque tandem abuteris Catilina patientia nostra?
-### wtf?
-- bflm
-- psvz
+## Prostorová data (čím jsou jiná?)
+
+## erkové knihovny pro GIS práci
+
+## Příklad - výpočet místa demonstrace 
+---
+# Prostorová data
+
+### Prostorová složka
+- bod = souřadnice X a Y
+- čára = více bodů se začátkem a koncem
+- polygon = více bodů spojených v pořadí
+- rastr (speciální formát) = mřížka se začátkem a velikostí bloku
+
+### Datová složka
+- informace věcně svázaná s prostorovou složkou
+
+### Příklad
+- na souřadnicích X a Y roste strom, je to [smrk](https://cs.wikipedia.org/wiki/Smrk_ztepil%C3%BD) starý 25 let a napadený [kůrovcem](https://cs.wikipedia.org/wiki/L%C3%BDko%C5%BErout_smrkov%C3%BD)
+- souřadnice XYZ ohraničují polygon, který má evidenční číslo LAU1 CZ0100, říkáme mu [Praha](https://cs.wikipedia.org/wiki/Praha) a žije v něm 1 294 513 obyvatel
 
 ---
-# ASDF
-```{r code, echo = T, eval = F}
+# Souřadnicové systémy
 
-  asdf <- fsad
-  cc == DD #<<
+### Zeměpisné
+- poloha bodu vůči průsečíku rovníku a nultého poledníku v **úhlových** mírách (šířka, délka)
+- obecně platné (popisují povrch koule)
+- příklad: [EPSG:4321](https://epsg.io/4326) - WGS84
+- používá například Google Maps, GPS (geocashing)
+
+### Plošné / Kartézské
+- poloha bodu vůči počátku v **délkových** mírách (zpravidla metry)
+- lokálně platné (popisují bod na ploše; zeměkoule *není* placatá)
+- příklad: [EPSG:5513](https://epsg.io/5513-1623) - inž. Křovák / S-JTSK
+- obecně závazné pro geodezii, podmínka některých výpočtů
+
+---
+# package `sf`
+
+### objekty třídy `sf`
+- rozšiřují `data.frame` = kombinují datové sloupce a "navíc" speciální sloupec *geometry* s prostorovými souřadnicemi
+- platí pro ně funkce a techniky jako pro `data.frame` - například `dplyr::inner_join()` či `dplyr::filter()`
+- lze je uložit do databáze (doporučuju [PostgreSQL](https://www.postgresql.org/)) a chovat se k nim jako k tabulárním datům
+
+### funkce pro třídu `sf`
+- `st_transform()` - přechází mezi souřadnicovými systémy
+- `st_buffer()` - vrací okolí bodu / polygonu
+- `st_intersect()` - vrací průsečík dvou prostorových objektů
+- a další ...
+
+---
+# package `tmap`
+
+Nástroj pro tvorbu map - využívá formátu dat `sf` package.
+
+```{r tmap, eval = T, echo = F, cache = T, message = F, out.width = '100%', fig.asp = 0.55}
+
+# load spatial data included in the tmap package
+data("World", "metro")
+
+# calculate annual growth rate
+metro$growth <- (metro$pop2020 - metro$pop2010) / (metro$pop2010 * 10) * 100
+
+# plot
+tm_shape(World) +
+  tm_polygons("income_grp", palette = "-Blues", 
+    title = "Income class", contrast = 0.7, border.col = "gray30", id = "name") +
+    tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
+tm_shape(metro) +
+  tm_bubbles("pop2010", col = "growth", border.col = "black", 
+    border.alpha = 0.5,
+    breaks = c(-Inf, 0, 2, 4, 6, Inf) ,
+    palette = "-RdYlGn",
+    title.size = "Metro population (2010)", 
+    title.col = "Annual growth rate (%)",
+    id = "name",
+    popup.vars = c("pop2010", "pop2020", "growth")) + 
+tm_style("gray") + tm_format("World")
+
 
 ```
+
+---
+# package `RCzechia`
+
+Vybrané objekty České republiky (kraje, okresy, obce...) ve formátu `sf` package.
+
+```{r rczechia, eval = T, echo = T, cache = T, out.width = '100%', fig.asp = 0.55}
+plot(RCzechia::okresy("low"), max.plot = 1)
+
+```
+---
+# Plánování demonstrace v R
+
+## **Vstup** volební výsledky po obcích a částech obcí České republiky
+## **Výstup** obec v ČR, v jejímž okolí se nachází nejvíce voličů
+## **Parametr** dojezdová vzdálenost
+
+---
+# Relativní výsledky volby
+
+```{r map-relative, eval = T, echo = F, cache = T, out.width = '100%', fig.asp = 0.55}
+
+# načtení dat z jlacko/Zeman2018 na GitHubu
+Zeman2018 <- url("https://raw.githubusercontent.com/jlacko/Zeman2018/master/src/prezident.csv")
+src <- read.csv2(Zeman2018,
+                 stringsAsFactors = F) 
+
+# výsledky voleb
+druheKolo <- src %>%
+  filter(CHYBA == 0) %>% # bez chyb
+  filter(KOLO == 2) %>% # pouze druhé kolo
+  group_by(OBEC) %>%
+  summarize(celkem = sum(PL_HL_CELK), # celkem platných hlasů
+            zeman = sum(HLASY_07),  # kandidát č.7 = Miloš Zeman
+            pct_zeman = sum(HLASY_07)/sum(PL_HL_CELK)) %>% # procento platných pro Zemana
+  mutate(KOD = as.character(OBEC)) # kod obce v RCzechia je text :(
+
+obce <- obce_polygony() %>% 
+  select(KOD = KOD_OBEC,
+         NAZEV = NAZ_OBEC)
+
+casti <- casti() %>%
+  select(KOD, NAZEV)
+
+podklad <- obce %>% # všechny obce...
+  rbind(casti) %>% # ...plus všechny části
+  inner_join(druheKolo, by = c("KOD", "KOD")) %>%
+    # z obcí a částí připojit ty s výsledkem
+    # filtrační (inner) join odstraní obce bez výsledku (Praha etc. - má ho z částí)
+  st_transform(crs = 5514)
+    # systém inž. Křováka 
+
+republika <- republika() %>%
+  st_transform(crs = 5514)
+    # systém inž. Křováka 
+
+kraje <- kraje() %>%
+  st_transform(crs = 5514)
+    # systém inž. Křováka 
+
+mapRelative <- tm_shape(podklad) + tm_fill(col = "pct_zeman", title = "Volební zisk", n = 5) +
+  tm_shape(kraje) + tm_borders("grey80") +
+  tm_shape(republika) + tm_borders("grey35") +
+  tm_style_white("Relativní výsledky", frame = F, 
+                 legend.format = list(text.separator =  "-",
+                                      fun = function(x) paste0(formatC(x * 100, digits = 0, 
+                                                                       format = "f"), " %")),
+                 legend.text.size = 0.8, 
+                 legend.title.size = 1.3) +
+  tm_legend(position = c("RIGHT", "top"))
+
+print(mapRelative)
+
+```
+
+
+---
+class: inverse, middle, center
+
+# Děkuji za pozornost
+
+Prezentaci včetně zdrojového kódu najdete na  
+[https://github.com/jlacko/r-meetup-demonstrace](https://github.com/jlacko/r-meetup-demonstrace)
+
 
 
 
