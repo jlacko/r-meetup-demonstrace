@@ -1,5 +1,5 @@
 ---
-title: 'Jak naplánovat demonstraci?'
+title: 'Kde uspořádat demonstraci?'
 subtitle: 'sedmý *Prague R Meetup*'
 author: '[Jindra Lacko](mailto:jindra@jla-data.net)'
 date: '<br>15.6.2018 @ KPMG'
@@ -49,6 +49,8 @@ library(RPostgreSQL)
 - souřadnice XYZ ohraničují polygon, který má evidenční číslo LAU1 CZ0100, říkáme mu [Praha](https://cs.wikipedia.org/wiki/Praha) a žije v něm 1 294 513 obyvatel
 
 ---
+exclude: true
+
 # Souřadnicové systémy
 
 ### Zeměpisné
@@ -82,7 +84,7 @@ library(RPostgreSQL)
 
 Nástroj pro tvorbu map - využívá formátu dat `sf` package.
 
-```{r tmap, eval = T, echo = F, cache = T, message = F, out.width = '100%', fig.asp = 0.55}
+```{r tmap, eval = T, echo = F, cache = T, message = F, out.width = '100%', fig.asp = 0.55, dpi = 150}
 
 # load spatial data included in the tmap package
 data("World", "metro")
@@ -94,7 +96,7 @@ metro$growth <- (metro$pop2020 - metro$pop2010) / (metro$pop2010 * 10) * 100
 tm_shape(World) +
   tm_polygons("income_grp", palette = "-Blues", 
     title = "Income class", contrast = 0.7, border.col = "gray30", id = "name") +
-    tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
+    tm_text("iso_a3", size = "AREA", col = "gray30", root=3) +
 tm_shape(metro) +
   tm_bubbles("pop2010", col = "growth", border.col = "black", 
     border.alpha = 0.5,
@@ -103,8 +105,9 @@ tm_shape(metro) +
     title.size = "Metro population (2010)", 
     title.col = "Annual growth rate (%)",
     id = "name",
-    popup.vars = c("pop2010", "pop2020", "growth")) + 
-tm_style("gray") + tm_format("World")
+    popup.vars=c("pop2010", "pop2020", "growth")) + 
+tm_format_World() + 
+tm_style_gray()
 
 
 ```
@@ -114,7 +117,7 @@ tm_style("gray") + tm_format("World")
 
 Vybrané objekty České republiky (kraje, okresy, obce...) ve formátu `sf` package.
 
-```{r rczechia, eval = T, echo = T, cache = T, out.width = '100%', fig.asp = 0.55}
+```{r rczechia, eval = T, echo = T, cache = T, out.width = '100%', fig.asp = 0.55, dpi = 150}
 plot(RCzechia::okresy("low"), max.plot = 1)
 
 ```
@@ -123,16 +126,16 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 
 ## **Vstup** volební výsledky po obcích a částech obcí České republiky
 ## **Výstup** obec v ČR, v jejímž okolí se nachází nejvíce voličů
-## **Parametr** dojezdová vzdálenost
+## **Parametr** dojezdová vzdálenost ("okolí" z předchozího bodu)
 
 ---
 # Relativní výsledky volby
-
-```{r map-relative, eval = T, echo = F, cache = T, out.width = '100%', fig.asp = 0.55}
+Volební zisk v *% platných hlasů* po obcích a částech - tohle bývá v novinách...
+```{r map-relative, eval = T, echo = F, cache = T, out.width = '100%', fig.asp = 0.67, dpi = 150}
 
 # načtení dat z jlacko/Zeman2018 na GitHubu
-Zeman2018 <- url("https://raw.githubusercontent.com/jlacko/Zeman2018/master/src/prezident.csv")
-src <- read.csv2(Zeman2018,
+Volby2018 <- url("https://raw.githubusercontent.com/jlacko/Zeman2018/master/src/prezident.csv")
+src <- read.csv2(Volby2018,
                  stringsAsFactors = F) 
 
 # výsledky voleb
@@ -161,7 +164,7 @@ podklad <- obce %>% # všechny obce...
     # systém inž. Křováka 
 
 republika <- republika() %>%
-  st_transform(crs = 5514)
+  st_transform(crs = 5514) 
     # systém inž. Křováka 
 
 kraje <- kraje() %>%
@@ -171,18 +174,104 @@ kraje <- kraje() %>%
 mapRelative <- tm_shape(podklad) + tm_fill(col = "pct_zeman", title = "Volební zisk", n = 5) +
   tm_shape(kraje) + tm_borders("grey80") +
   tm_shape(republika) + tm_borders("grey35") +
-  tm_style_white("Relativní výsledky", frame = F, 
+  tm_style_white(frame = F, 
                  legend.format = list(text.separator =  "-",
                                       fun = function(x) paste0(formatC(x * 100, digits = 0, 
                                                                        format = "f"), " %")),
                  legend.text.size = 0.8, 
                  legend.title.size = 1.3) +
-  tm_legend(position = c("RIGHT", "top"))
+  tm_legend(position = c("RIGHT", "top")) 
 
-print(mapRelative)
+mapRelative
 
 ```
 
+---
+# Absolutní výsledky volby
+Volební zisk *v počtu platných hlasů* po obcích a částech - protože na demonstraci přijdou lidé, ne procenta
+
+```{r map-absolute, eval = T, echo = F, cache = T, out.width = '100%', fig.asp = 0.67, dpi = 150}
+
+mapAbsolute <- tm_shape(podklad) + tm_fill(col = "zeman", title = "Volební zisk", n = 5) +
+  tm_shape(kraje) + tm_borders("grey80") +
+  tm_shape(republika) + tm_borders("grey35") +
+  tm_style_white(frame = F, 
+                 legend.format = list(text.separator =  "-",
+                                      text.align = "center",
+                                      fun = function(x) paste0(formatC(x / 1000, digits = 0, 
+                                                                       format = "f"), " tis.")),
+                 legend.text.size = 0.8, 
+                 legend.title.size = 1.3) +
+  tm_legend(position = c("RIGHT", "top"))
+
+    #poznámka: tento mapový objekt ještě několikrát zrecykluji...
+
+mapAbsolute
+```
+```{r housekeeping, eval = T, echo = F, warning = F, cache = T}
+st_agr(podklad) <- "constant" # vše jsou konstanty
+
+podklad <- podklad %>%  
+  st_centroid() 
+  # body místo polygonů - snazší výpočet vzdálenosti, a jednoznačná interpretace průsečíků 
+```
+---
+Funkce Šelmostroj
+
+```{r selmostroj, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '100%', fig.asp = 0.67, dpi = 150}
+selmostroj <- function(vzdalenost) {
+  podklad$suma_volicu <- NA # uklidit
+  
+  for (i in 1:nrow(podklad)) { # pro všechny řádky podkladu
+    buff <- st_buffer(podklad[i,], dist = vzdalenost) # buffer o průměru vzdalenost
+    isect <- st_intersection(podklad, buff) # průsečík bufferu a pracovního seznamu
+    podklad$suma_volicu[i] <- sum(isect$zeman) 
+      # uložit součet hlasů v bufferu do podkladu
+  }
+  
+ stred <- podklad[which.max(podklad$suma_volicu), ] # tato obec je optimální!
+ writeLines(paste("Optimální místo demonstrace:", 
+            stred$NAZEV, 
+            "\nvoličů v okolí", vzdalenost / 1000, "kilometrů:",
+            formatC(stred$suma_volicu, format = "f", big.mark = " ", digits = 0)))
+  mapAbsolute <- mapAbsolute + # recyklace dříve vytvořené mapy
+    tm_shape(stred) + tm_dots(size = 1/5, col = "red", shape = 4) +
+    tm_shape(st_buffer(stred, dist = vzdalenost)) + tm_borders(col = "red")
+
+    # využívám vlastnosti Rka, že si ve funkci z vnějšího okolí mohu "půjčit"
+    # libovolný objekt, a změny na něm vykonané <- operátorem se nepropíší zpátky
+    # (pokud nepoužiji <<- operátor)
+  
+    print(mapAbsolute)
+}
+```
+---
+# Spádovost 2 kilometry
+```{r spad-2, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '100%', fig.asp = 0.67, dpi = 150}
+selmostroj(2 * 1000) #2 kilometry
+```
+---
+# Spádovost 10 kilometrů
+```{r spad-10, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '100%', fig.asp = 0.67, dpi = 150}
+selmostroj(10 * 1000) #10 kilometrů
+```
+---
+# Spádovost 30 kilometrů
+```{r spad-30, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '100%', fig.asp = 0.67, dpi = 150}
+selmostroj(30 * 1000) # 30 kilometrů
+```
+---
+# Spádovost 50 kilometrů
+```{r spad-50, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '100%', fig.asp = 0.67, dpi = 150}
+selmostroj(50 * 1000) #50 kilometrů
+```
+---
+# Spádovost 150 kilometrů
+```{r spad-150, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '100%', fig.asp = 0.67, dpi = 150}
+selmostroj(150 * 1000) #150 kilometrů
+```
+---
+# Závěr
 
 ---
 class: inverse, middle, center
@@ -191,7 +280,3 @@ class: inverse, middle, center
 
 Prezentaci včetně zdrojového kódu najdete na  
 [https://github.com/jlacko/r-meetup-demonstrace](https://github.com/jlacko/r-meetup-demonstrace)
-
-
-
-

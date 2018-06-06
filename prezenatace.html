@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Jak naplánovat demonstraci?</title>
+    <title>Kde uspořádat demonstraci?</title>
     <meta charset="utf-8">
     <meta name="author" content="Jindra Lacko" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
@@ -11,7 +11,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Jak naplánovat demonstraci?
+# Kde uspořádat demonstraci?
 ## sedmý <em>Prague R Meetup</em>
 ### <a href="mailto:jindra@jla-data.net">Jindra Lacko</a>
 ### <br>15.6.2018 @ KPMG
@@ -47,7 +47,7 @@ class: center, middle, inverse, title-slide
 ---
 # Souřadnicové systémy
 
-### Zeměpisné / sférické
+### Zeměpisné
 - poloha bodu vůči průsečíku rovníku a nultého poledníku v **úhlových** mírách (šířka, délka)
 - obecně platné (popisují povrch koule)
 - příklad: [EPSG:4321](https://epsg.io/4326) - WGS84
@@ -96,7 +96,117 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 
 ## **Vstup** volební výsledky po obcích a částech obcí České republiky
 ## **Výstup** obec v ČR, v jejímž okolí se nachází nejvíce voličů
-## **Parametr** dojezdová vzdálenost
+## **Parametr** dojezdová vzdálenost ("okolí" z předchozího bodu)
+
+---
+# Relativní výsledky volby
+Volební zisk v *% platných hlasů* po obcích a částech - tohle bývá v novinách...
+&lt;img src="prezenatace_files/figure-html/map-relative-1.png" width="100%" /&gt;
+
+---
+# Absolutní výsledky volby
+Volební zisk *v počtu platných hlasů* po obcích a částech - protože na demonstraci přijdou lidé, ne procenta
+
+&lt;img src="prezenatace_files/figure-html/map-absolute-1.png" width="100%" /&gt;
+
+---
+Funkce Šelmostroj
+
+
+```r
+selmostroj &lt;- function(vzdalenost) {
+  podklad$suma_volicu &lt;- NA # uklidit
+  
+  for (i in 1:nrow(podklad)) { # pro všechny řádky podkladu
+    buff &lt;- st_buffer(podklad[i,], dist = vzdalenost) # buffer o průměru vzdalenost
+    isect &lt;- st_intersection(podklad, buff) # průsečík bufferu a pracovního seznamu
+    podklad$suma_volicu[i] &lt;- sum(isect$zeman) 
+      # uložit součet hlasů v bufferu do podkladu
+  }
+  
+ stred &lt;- podklad[which.max(podklad$suma_volicu), ] # tato obec je optimální!
+ writeLines(paste("Optimální místo demonstrace:", 
+            stred$NAZEV, 
+            "\nvoličů v okolí", vzdalenost / 1000, "kilometrů:",
+            formatC(stred$suma_volicu, format = "f", big.mark = " ", digits = 0)))
+  mapAbsolute &lt;- mapAbsolute + # recyklace dříve vytvořené mapy
+    tm_shape(stred) + tm_dots(size = 1/5, col = "red", shape = 4) +
+    tm_shape(st_buffer(stred, dist = vzdalenost)) + tm_borders(col = "red")
+
+    # využívám vlastnosti Rka, že si ve funkci z vnějšího okolí mohu "půjčit"
+    # libovolný objekt, a změny na něm vykonané &lt;- operátorem se nepropíší zpátky
+    # (pokud nepoužiji &lt;&lt;- operátor)
+  
+    print(mapAbsolute)
+}
+```
+---
+# Spádovost 2 kilometry
+
+```r
+selmostroj(2 * 1000) #2 kilometry
+```
+
+```
+## Optimální místo demonstrace: Ostrava-Jih 
+## voličů v okolí 2 kilometrů: 32 103
+```
+
+&lt;img src="prezenatace_files/figure-html/spad-2-1.png" width="100%" /&gt;
+---
+# Spádovost 10 kilometrů
+
+```r
+selmostroj(10 * 1000) #10 kilometrů
+```
+
+```
+## Optimální místo demonstrace: Praha 2 
+## voličů v okolí 10 kilometrů: 183 125
+```
+
+&lt;img src="prezenatace_files/figure-html/spad-10-1.png" width="100%" /&gt;
+---
+# Spádovost 30 kilometrů
+
+```r
+selmostroj(30 * 1000) # 30 kilometrů
+```
+
+```
+## Optimální místo demonstrace: Praha-Troja 
+## voličů v okolí 30 kilometrů: 325 862
+```
+
+&lt;img src="prezenatace_files/figure-html/spad-30-1.png" width="100%" /&gt;
+---
+# Spádovost 50 kilometrů
+
+```r
+selmostroj(50 * 1000) #50 kilometrů
+```
+
+```
+## Optimální místo demonstrace: Račiněves 
+## voličů v okolí 50 kilometrů: 543 378
+```
+
+&lt;img src="prezenatace_files/figure-html/spad-50-1.png" width="100%" /&gt;
+---
+# Spádovost 150 kilometrů
+
+```r
+selmostroj(150 * 1000) #150 kilometrů
+```
+
+```
+## Optimální místo demonstrace: Němčice 
+## voličů v okolí 150 kilometrů: 2 035 075
+```
+
+&lt;img src="prezenatace_files/figure-html/spad-150-1.png" width="100%" /&gt;
+---
+# Závěr
 
 ---
 class: inverse, middle, center
