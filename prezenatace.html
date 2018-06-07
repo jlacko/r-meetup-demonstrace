@@ -45,6 +45,8 @@ class: center, middle, inverse, title-slide
 - souřadnice XYZ ohraničují polygon, který má evidenční číslo LAU1 CZ0100, říkáme mu [Praha](https://cs.wikipedia.org/wiki/Praha) a žije v něm 1 294 513 obyvatel
 
 ---
+exclude: true
+
 # Souřadnicové systémy
 
 ### Zeměpisné
@@ -62,6 +64,8 @@ class: center, middle, inverse, title-slide
 ---
 # package `sf`
 
+Implementace [Simple Features Access](https://en.wikipedia.org/wiki/Simple_Features) standardu vektorových dat v R.
+
 ### objekty třídy `sf`
 - rozšiřují `data.frame` = kombinují datové sloupce a "navíc" speciální sloupec *geometry* s prostorovými souřadnicemi
 - platí pro ně funkce a techniky jako pro `data.frame` - například `dplyr::inner_join()` či `dplyr::filter()`
@@ -71,14 +75,14 @@ class: center, middle, inverse, title-slide
 - `st_transform()` - přechází mezi souřadnicovými systémy
 - `st_buffer()` - vrací okolí bodu / polygonu
 - `st_intersect()` - vrací průsečík dvou prostorových objektů
-- a další ...
+- a další ... :)
 
 ---
 # package `tmap`
 
 Nástroj pro tvorbu map - využívá formátu dat `sf` package.
 
-&lt;img src="prezenatace_files/figure-html/tmap-1.png" width="100%" /&gt;
+&lt;img src="prezenatace_files/figure-html/tmap-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ---
 # package `RCzechia`
@@ -90,7 +94,7 @@ Vybrané objekty České republiky (kraje, okresy, obce...) ve formátu `sf` pac
 plot(RCzechia::okresy("low"), max.plot = 1)
 ```
 
-&lt;img src="prezenatace_files/figure-html/rczechia-1.png" width="100%" /&gt;
+&lt;img src="prezenatace_files/figure-html/rczechia-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 ---
 # Plánování demonstrace v R
 
@@ -100,23 +104,22 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 
 ---
 # Relativní výsledky volby
-Volební zisk v *% platných hlasů* po obcích a částech - tohle bývá v novinách...
-&lt;img src="prezenatace_files/figure-html/map-relative-1.png" width="100%" /&gt;
+Výsledek v *% platných hlasů* - tohle bývá v novinách...
+&lt;img src="prezenatace_files/figure-html/map-relative-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ---
 # Absolutní výsledky volby
-Volební zisk *v počtu platných hlasů* po obcích a částech - protože na demonstraci přijdou lidé, ne procenta
+Výsledek *v počtu platných hlasů* - protože na demonstraci přijdou lidé, ne procenta
 
-&lt;img src="prezenatace_files/figure-html/map-absolute-1.png" width="100%" /&gt;
+&lt;img src="prezenatace_files/figure-html/map-absolute-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ---
-Funkce Šelmostroj
+# Funkce Šelmostroj
 
 
 ```r
 selmostroj &lt;- function(vzdalenost) {
-  podklad$suma_volicu &lt;- NA # uklidit
-  
+
   for (i in 1:nrow(podklad)) { # pro všechny řádky podkladu
     buff &lt;- st_buffer(podklad[i,], dist = vzdalenost) # buffer o průměru vzdalenost
     isect &lt;- st_intersection(podklad, buff) # průsečík bufferu a pracovního seznamu
@@ -124,19 +127,17 @@ selmostroj &lt;- function(vzdalenost) {
       # uložit součet hlasů v bufferu do podkladu
   }
   
- stred &lt;- podklad[which.max(podklad$suma_volicu), ] # tato obec je optimální!
+ stred &lt;- podklad[which.max(podklad$suma_volicu), ] 
+ # tato obec je optimální!
  writeLines(paste("Optimální místo demonstrace:", 
             stred$NAZEV, 
-            "\nvoličů v okolí", vzdalenost / 1000, "kilometrů:",
+            "\nVoličů v okolí", vzdalenost / 1000, "kilometrů:",
             formatC(stred$suma_volicu, format = "f", big.mark = " ", digits = 0)))
+ 
   mapAbsolute &lt;- mapAbsolute + # recyklace dříve vytvořené mapy
     tm_shape(stred) + tm_dots(size = 1/5, col = "red", shape = 4) +
     tm_shape(st_buffer(stred, dist = vzdalenost)) + tm_borders(col = "red")
 
-    # využívám vlastnosti Rka, že si ve funkci z vnějšího okolí mohu "půjčit"
-    # libovolný objekt, a změny na něm vykonané &lt;- operátorem se nepropíší zpátky
-    # (pokud nepoužiji &lt;&lt;- operátor)
-  
     print(mapAbsolute)
 }
 ```
@@ -149,10 +150,10 @@ selmostroj(2 * 1000) #2 kilometry
 
 ```
 ## Optimální místo demonstrace: Ostrava-Jih 
-## voličů v okolí 2 kilometrů: 32 103
+## Voličů v okolí 2 kilometrů: 32 103
 ```
 
-&lt;img src="prezenatace_files/figure-html/spad-2-1.png" width="100%" /&gt;
+&lt;img src="prezenatace_files/figure-html/spad-2-1.png" width="85%" style="display: block; margin: auto;" /&gt;
 ---
 # Spádovost 10 kilometrů
 
@@ -162,10 +163,10 @@ selmostroj(10 * 1000) #10 kilometrů
 
 ```
 ## Optimální místo demonstrace: Praha 2 
-## voličů v okolí 10 kilometrů: 183 125
+## Voličů v okolí 10 kilometrů: 183 125
 ```
 
-&lt;img src="prezenatace_files/figure-html/spad-10-1.png" width="100%" /&gt;
+&lt;img src="prezenatace_files/figure-html/spad-10-1.png" width="85%" style="display: block; margin: auto;" /&gt;
 ---
 # Spádovost 30 kilometrů
 
@@ -175,10 +176,10 @@ selmostroj(30 * 1000) # 30 kilometrů
 
 ```
 ## Optimální místo demonstrace: Praha-Troja 
-## voličů v okolí 30 kilometrů: 325 862
+## Voličů v okolí 30 kilometrů: 325 862
 ```
 
-&lt;img src="prezenatace_files/figure-html/spad-30-1.png" width="100%" /&gt;
+&lt;img src="prezenatace_files/figure-html/spad-30-1.png" width="85%" style="display: block; margin: auto;" /&gt;
 ---
 # Spádovost 50 kilometrů
 
@@ -188,10 +189,10 @@ selmostroj(50 * 1000) #50 kilometrů
 
 ```
 ## Optimální místo demonstrace: Račiněves 
-## voličů v okolí 50 kilometrů: 543 378
+## Voličů v okolí 50 kilometrů: 543 378
 ```
 
-&lt;img src="prezenatace_files/figure-html/spad-50-1.png" width="100%" /&gt;
+&lt;img src="prezenatace_files/figure-html/spad-50-1.png" width="85%" style="display: block; margin: auto;" /&gt;
 ---
 # Spádovost 150 kilometrů
 
@@ -201,12 +202,18 @@ selmostroj(150 * 1000) #150 kilometrů
 
 ```
 ## Optimální místo demonstrace: Němčice 
-## voličů v okolí 150 kilometrů: 2 035 075
+## Voličů v okolí 150 kilometrů: 2 035 075
 ```
 
-&lt;img src="prezenatace_files/figure-html/spad-150-1.png" width="100%" /&gt;
+&lt;img src="prezenatace_files/figure-html/spad-150-1.png" width="85%" style="display: block; margin: auto;" /&gt;
 ---
-# Závěr
+# Závěr - erko jako GIS nástroj
+
+##- je o něco složitější než klikání v GUI
+##- podporuje opakovatelnost výpočtu
+##- podporuje iteraci (for cyklus)
+##- navazuje na širší R ekosystém
+##- je Open Source - v dobrém i zlém...
 
 ---
 class: inverse, middle, center
