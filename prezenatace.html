@@ -61,7 +61,7 @@ class: center, middle, inverse, title-slide
 ---
 # package `sf`
 
-Implementace [Simple Features Access](https://en.wikipedia.org/wiki/Simple_Features) standardu vektorových dat v R.
+Implementace [Simple Features](https://cs.wikipedia.org/wiki/Simple_Features) standardu vektorových dat v R.
 
 ### objekty třídy `sf`
 - rozšiřují `data.frame` = kombinují datové sloupce a "navíc" speciální sloupec *geometry* s prostorovými souřadnicemi
@@ -85,7 +85,6 @@ Nástroj pro tvorbu map - využívá formátu dat `sf` package.
 # package `RCzechia`
 
 Vybrané objekty České republiky (kraje, okresy, obce...) ve formátu `sf` package.
-
 
 ```r
 plot(RCzechia::okresy("low"), max.plot = 1)
@@ -112,7 +111,6 @@ Výsledek *v počtu platných hlasů* - protože na demonstraci přijdou lidé, 
 ---
 # Funkce Šelmostroj
 
-
 ```r
 selmostroj &lt;- function(vzdalenost) {
 
@@ -122,9 +120,9 @@ selmostroj &lt;- function(vzdalenost) {
     podklad$suma_volicu[i] &lt;- sum(isect$hlasu) # uložit součet hlasů v bufferu do podkladu
   }
   
- stred &lt;- podklad[which.max(podklad$suma_volicu), ] # tady!
+  stred &lt;- podklad[which.max(podklad$suma_volicu), ] # tady!
 
- writeLines(paste("Optimální místo demonstrace:", stred$NAZEV, 
+  writeLines(paste("Optimální místo demonstrace:", stred$NAZEV, 
             "\nVoličů v okolí", vzdalenost / 1000, "kilometrů:",
             formatC(stred$suma_volicu, format = "f", big.mark = " ", digits = 0)))
  
@@ -132,7 +130,7 @@ selmostroj &lt;- function(vzdalenost) {
     tm_shape(stred) + tm_dots(size = 1/5, col = "red", shape = 4) +
     tm_shape(st_buffer(stred, dist = vzdalenost)) + tm_borders(col = "red")
 
-    print(mapAbsolute)
+  print(mapAbsolute)
 }
 ```
 ---
