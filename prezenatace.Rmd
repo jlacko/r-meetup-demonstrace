@@ -20,7 +20,6 @@ library(tmap)
 library(RCzechia)
 library(tidyverse)
 ```
-
 # Agenda
 
 ## Prostorová data (čím jsou jiná?)
@@ -45,8 +44,6 @@ library(tidyverse)
 - souřadnice XYZ ohraničují polygon, který má evidenční číslo LAU1 CZ0100, říkáme mu [Praha](https://cs.wikipedia.org/wiki/Praha) a žije v něm 1 294 513 obyvatel
 
 ---
-exclude: true
-
 # Souřadnicové systémy
 
 ### Zeměpisné
@@ -141,9 +138,8 @@ druheKolo <- src %>%
   filter(CHYBA == 0) %>% # bez chyb
   filter(KOLO == 2) %>% # pouze druhé kolo
   group_by(OBEC) %>%
-  summarize(celkem = sum(PL_HL_CELK), # celkem platných hlasů
-            zeman = sum(HLASY_07),  # kandidát č.7 = Miloš Zeman
-            pct_zeman = sum(HLASY_07)/sum(PL_HL_CELK)) %>% # procento platných pro Zemana
+  summarize(hlasu = sum(HLASY_07),  # kandidát č.7 = Miloš Zeman
+            procent = sum(HLASY_07)/sum(PL_HL_CELK)) %>% # procento platných pro Zemana
   mutate(KOD = as.character(OBEC)) # kod obce v RCzechia je text :(
 
 obce <- obce_polygony() %>% 
@@ -158,18 +154,21 @@ podklad <- obce %>% # všechny obce...
   inner_join(druheKolo, by = c("KOD", "KOD")) %>%
     # z obcí a částí připojit ty s výsledkem
     # filtrační (inner) join odstraní obce bez výsledku (Praha etc. - má ho z částí)
-  st_transform(crs = 5514)
-    # systém inž. Křováka 
-
-republika <- republika() %>%
   st_transform(crs = 5514) 
     # systém inž. Křováka 
 
-kraje <- kraje() %>%
+st_agr(podklad) <- 'constant'
+  # všechny hodnoty jsou konstanty
+
+republika <- republika() %>% # obrysy republiky - pro hezčí grafy...
+  st_transform(crs = 5514) 
+    # systém inž. Křováka 
+
+kraje <- kraje() %>% # obrysy krajů - pro hezčí grafy...
   st_transform(crs = 5514)
     # systém inž. Křováka 
 
-mapRelative <- tm_shape(podklad) + tm_fill(col = "pct_zeman", title = "Volební zisk", n = 5) +
+mapRelative <- tm_shape(podklad) + tm_fill(col = "procent", title = "Volební zisk", n = 5) +
   tm_shape(kraje) + tm_borders("grey80") +
   tm_shape(republika) + tm_borders("grey35") +
   tm_style_white(frame = F, 
@@ -187,10 +186,9 @@ mapRelative
 ---
 # Absolutní výsledky volby
 Výsledek *v počtu platných hlasů* - protože na demonstraci přijdou lidé, ne procenta
-
 ```{r map-absolute, eval = T, echo = F, cache = T, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 
-mapAbsolute <- tm_shape(podklad) + tm_fill(col = "zeman", title = "Volební zisk", n = 5) +
+mapAbsolute <- tm_shape(podklad) + tm_fill(col = "hlasu", title = "Volební zisk", n = 5) +
   tm_shape(kraje) + tm_borders("grey80") +
   tm_shape(republika) + tm_borders("grey35") +
   tm_style_white(frame = F, 
@@ -207,31 +205,25 @@ mapAbsolute <- tm_shape(podklad) + tm_fill(col = "zeman", title = "Volební zisk
 mapAbsolute
 ```
 ```{r housekeeping, eval = T, echo = F, warning = F, cache = T}
-st_agr(podklad) <- "constant" # vše jsou konstanty
-
 podklad <- podklad %>%  
   st_centroid() 
   # body místo polygonů - snazší výpočet vzdálenosti, a jednoznačná interpretace průsečíků 
-
-podklad$suma_volicu <- NA # prázdný sloupec
 ```
 ---
 # Funkce Šelmostroj
 
-```{r selmostroj, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
+```{r selmostroj, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 selmostroj <- function(vzdalenost) {
 
-  for (i in 1:nrow(podklad)) { # pro všechny řádky podkladu
+  for (i in 1:nrow(podklad)) { 
     buff <- st_buffer(podklad[i,], dist = vzdalenost) # buffer o průměru vzdalenost
     isect <- st_intersection(podklad, buff) # průsečík bufferu a pracovního seznamu
-    podklad$suma_volicu[i] <- sum(isect$zeman) 
-      # uložit součet hlasů v bufferu do podkladu
+    podklad$suma_volicu[i] <- sum(isect$hlasu) # uložit součet hlasů v bufferu do podkladu
   }
   
- stred <- podklad[which.max(podklad$suma_volicu), ] 
- # tato obec je optimální!
- writeLines(paste("Optimální místo demonstrace:", 
-            stred$NAZEV, 
+ stred <- podklad[which.max(podklad$suma_volicu), ] # tady!
+
+ writeLines(paste("Optimální místo demonstrace:", stred$NAZEV, 
             "\nVoličů v okolí", vzdalenost / 1000, "kilometrů:",
             formatC(stred$suma_volicu, format = "f", big.mark = " ", digits = 0)))
  
@@ -245,12 +237,12 @@ selmostroj <- function(vzdalenost) {
 ---
 # Spádovost 2 kilometry
 ```{r spad-2, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
-selmostroj(2 * 1000) #2 kilometry
+selmostroj(2 * 1000) # 2 kilometry
 ```
 ---
 # Spádovost 10 kilometrů
 ```{r spad-10, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
-selmostroj(10 * 1000) #10 kilometrů
+selmostroj(10 * 1000) # 10 kilometrů
 ```
 ---
 # Spádovost 30 kilometrů
@@ -260,21 +252,21 @@ selmostroj(30 * 1000) # 30 kilometrů
 ---
 # Spádovost 50 kilometrů
 ```{r spad-50, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
-selmostroj(50 * 1000) #50 kilometrů
+selmostroj(50 * 1000) # 50 kilometrů
 ```
 ---
 # Spádovost 150 kilometrů
 ```{r spad-150, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
-selmostroj(150 * 1000) #150 kilometrů
+selmostroj(150 * 1000) # 150 kilometrů
 ```
 ---
 # Závěr - erko jako GIS nástroj
 
-##- je o něco složitější než klikání v GUI
-##- podporuje opakovatelnost výpočtu
-##- podporuje iteraci (for cyklus)
-##- navazuje na širší R ekosystém
-##- je Open Source - v dobrém i zlém...
+## ✘ je psaní více kódu než čisté GUI
+## ✔ podporuje opakovatelnost výpočtu
+## ✔ podporuje iteraci (`for` cyklus)
+## ✔ navazuje na širší R ekosystém
+## ☺ je Open Source - v dobrém i zlém
 
 ---
 class: inverse, middle, center

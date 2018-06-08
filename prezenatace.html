@@ -20,7 +20,6 @@ class: center, middle, inverse, title-slide
 
 
 
-
 # Agenda
 
 ## Prostorová data (čím jsou jiná?)
@@ -45,8 +44,6 @@ class: center, middle, inverse, title-slide
 - souřadnice XYZ ohraničují polygon, který má evidenční číslo LAU1 CZ0100, říkáme mu [Praha](https://cs.wikipedia.org/wiki/Praha) a žije v něm 1 294 513 obyvatel
 
 ---
-exclude: true
-
 # Souřadnicové systémy
 
 ### Zeměpisné
@@ -110,7 +107,6 @@ Výsledek v *% platných hlasů* - tohle bývá v novinách...
 ---
 # Absolutní výsledky volby
 Výsledek *v počtu platných hlasů* - protože na demonstraci přijdou lidé, ne procenta
-
 &lt;img src="prezenatace_files/figure-html/map-absolute-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ---
@@ -120,17 +116,15 @@ Výsledek *v počtu platných hlasů* - protože na demonstraci přijdou lidé, 
 ```r
 selmostroj &lt;- function(vzdalenost) {
 
-  for (i in 1:nrow(podklad)) { # pro všechny řádky podkladu
+  for (i in 1:nrow(podklad)) { 
     buff &lt;- st_buffer(podklad[i,], dist = vzdalenost) # buffer o průměru vzdalenost
     isect &lt;- st_intersection(podklad, buff) # průsečík bufferu a pracovního seznamu
-    podklad$suma_volicu[i] &lt;- sum(isect$zeman) 
-      # uložit součet hlasů v bufferu do podkladu
+    podklad$suma_volicu[i] &lt;- sum(isect$hlasu) # uložit součet hlasů v bufferu do podkladu
   }
   
- stred &lt;- podklad[which.max(podklad$suma_volicu), ] 
- # tato obec je optimální!
- writeLines(paste("Optimální místo demonstrace:", 
-            stred$NAZEV, 
+ stred &lt;- podklad[which.max(podklad$suma_volicu), ] # tady!
+
+ writeLines(paste("Optimální místo demonstrace:", stred$NAZEV, 
             "\nVoličů v okolí", vzdalenost / 1000, "kilometrů:",
             formatC(stred$suma_volicu, format = "f", big.mark = " ", digits = 0)))
  
@@ -145,7 +139,7 @@ selmostroj &lt;- function(vzdalenost) {
 # Spádovost 2 kilometry
 
 ```r
-selmostroj(2 * 1000) #2 kilometry
+selmostroj(2 * 1000) # 2 kilometry
 ```
 
 ```
@@ -158,7 +152,7 @@ selmostroj(2 * 1000) #2 kilometry
 # Spádovost 10 kilometrů
 
 ```r
-selmostroj(10 * 1000) #10 kilometrů
+selmostroj(10 * 1000) # 10 kilometrů
 ```
 
 ```
@@ -184,7 +178,7 @@ selmostroj(30 * 1000) # 30 kilometrů
 # Spádovost 50 kilometrů
 
 ```r
-selmostroj(50 * 1000) #50 kilometrů
+selmostroj(50 * 1000) # 50 kilometrů
 ```
 
 ```
@@ -197,7 +191,7 @@ selmostroj(50 * 1000) #50 kilometrů
 # Spádovost 150 kilometrů
 
 ```r
-selmostroj(150 * 1000) #150 kilometrů
+selmostroj(150 * 1000) # 150 kilometrů
 ```
 
 ```
@@ -209,11 +203,11 @@ selmostroj(150 * 1000) #150 kilometrů
 ---
 # Závěr - erko jako GIS nástroj
 
-##- je o něco složitější než klikání v GUI
-##- podporuje opakovatelnost výpočtu
-##- podporuje iteraci (for cyklus)
-##- navazuje na širší R ekosystém
-##- je Open Source - v dobrém i zlém...
+## ✘ je psaní více kódu než čisté GUI
+## ✔ podporuje opakovatelnost výpočtu
+## ✔ podporuje iteraci (`for` cyklus)
+## ✔ navazuje na širší R ekosystém
+## ☺ je Open Source - v dobrém i zlém
 
 ---
 class: inverse, middle, center
