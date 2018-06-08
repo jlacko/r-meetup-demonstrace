@@ -7,6 +7,7 @@ output:
   xaringan::moon_reader:
     css: ["default", "JLA-fonts.css"]
     lib_dir: libs
+    self_contained: true
     nature:
       highlightStyle: github
       highlightLines: true
