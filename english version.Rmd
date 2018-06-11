@@ -1,6 +1,6 @@
 ---
-title: 'Kde uspořádat demonstraci?'
-subtitle: 'sedmý *Prague R Meetup*'
+title: 'Where to Hold a Demo?'
+subtitle: 'seventh *Prague R Meetup*'
 author: '[Jindra Lacko](mailto:jindra@jla-data.net)'
 date: '<br>15.6.2018 @ KPMG'
 output:
@@ -23,64 +23,64 @@ library(tidyverse)
 ```
 # Agenda
 
-## Prostorová data (čím jsou jiná?)
+## Spatial data - what makes them special? 
 
-## erkové knihovny pro GIS práci
+## R packages for GIS work
 
-## Příklad - výpočet místa demonstrace 
+## Example - calculating meeting place for a demonstration
 ---
-# Prostorová data
+# Spatial Data
 
-### Prostorová složka
-- bod = souřadnice X a Y
-- čára = více bodů se začátkem a koncem
-- polygon = více bodů spojených v pořadí
-- rastr (speciální formát) = mřížka se začátkem a velikostí bloku
+### The Spatial Part
+- point = coordinates X and Y
+- line = multiple points with beginning and end
+- polygon = multiple points joined in order
+- raster (special format) = grid with start and cell size
 
-### Datová složka
-- informace věcně svázaná s prostorovou složkou
+### The Data Part
+- information on the spatial part
 
-### Příklad
-- na souřadnicích X a Y roste strom, je to [smrk](https://cs.wikipedia.org/wiki/Smrk_ztepil%C3%BD) starý 25 let a napadený [kůrovcem](https://cs.wikipedia.org/wiki/L%C3%BDko%C5%BErout_smrkov%C3%BD)
-- souřadnice XYZ ohraničují polygon, který má evidenční číslo LAU1 CZ0100, říkáme mu [Praha](https://cs.wikipedia.org/wiki/Praha) a žije v něm 1 294 513 obyvatel
+### Example
+- a tree grows on X and Y coordinates, it is a [spruce](https://en.wikipedia.org/wiki/Spruce) about 25 years old and it is infected by the [bark beetle](https://en.wikipedia.org/wiki/European_spruce_bark_beetle)  
+- coordinates XYZ demark a polygon with LAU1 code CZ0100, it is called [Prague](https://en.wikipedia.org/wiki/Prague) and it has 1 294 513 inhabitants
+
 
 ---
-# Souřadnicové systémy
+# Coordinate Reference Systems
 
-### Zeměpisné
-- poloha bodu na kouli vůči průsečíku rovníku a nultého poledníku v **úhlových** mírách (šířka, délka)
-- obecně platné (popisují povrch koule)
-- příklad: [EPSG:4321](https://epsg.io/4326) - WGS84
-- používá například Google Maps, GPS (geocashing)
+### Angular (Geographic)
+- position of a point on globe in **angular** units (latitude, longitude)
+- universally valid (can be used for any part of the globe)
+- example: [EPSG:4321](https://epsg.io/4326) - WGS84
+- used in navigation and by Google Maps, GPS (geocashing)
 
-### Plošné / Kartézské
-- poloha bodu na ploše vůči počátku v **délkových** mírách (easting, northing)
-- lokálně použitelné (zeměkoule *není* placatá; projekce je o kompromisech)
-- příklad: [EPSG:5513](https://epsg.io/5513-1623) - inž. Křovák / S-JTSK
-- obecně závazné pro geodezii, podmínka některých výpočtů
+### Planar (Projected)
+- position of a point in 2D space in **distance** units (easting, northing)
+- locally valid (Earth is not flat; compromises are made in projection)
+- example: [EPSG:5513](https://epsg.io/5513-1623) - ing. Křovák / S-JTSK
+- used in geodetics, requirement of certain calculations
 
 ---
 # package `sf`
 
-Implementace [Simple Features](https://cs.wikipedia.org/wiki/Simple_Features) standardu vektorových dat v R.
+Implementation of the [Simple Features](https://en.wikipedia.org/wiki/Simple_Features) ISO standard of spatial data in R.
 
-### objekty třídy `sf`
-- rozšiřují `data.frame` = kombinují datové sloupce a "navíc" speciální sloupec *geometry* s prostorovými atributy
-- platí pro ně stejné funkce a techniky jako pro `data.frame` - například `dplyr::inner_join()` a `dplyr::filter()`
-- lze je uložit do databáze (doporučuju [PostgreSQL](https://www.postgresql.org/)) a chovat se k nim jako k tabulárním datům
+### The `sf` class
+- extends the `data.frame` class = allowing both "regular" data columns and a special column *geometry* with spatial attributes in a single R object
+- all functions and techniques for `data.frame` still apply - e.g. `dplyr::inner_join()` and `dplyr::filter()`
+- can be saved into database (I suggest [PostgreSQL](https://www.postgresql.org/)) and treated as tabular data
 
-### funkce pro třídu `sf`
-- `st_transform()` - přechází mezi souřadnicovými systémy
-- `st_buffer()` - vrací okolí bodu / polygonu jako polygon
-- `st_centroid()` - vrací střed polygonu jako bod
-- `st_intersect()` - vrací průsečík dvou prostorových objektů
-- a další ... :)
+### Functions for class `sf`
+- `st_transform()` - switch between coordinate reference systems
+- `st_buffer()` - returns a buffer around a point or a polygon
+- `st_centroid()` - returns center of a polygon as a point
+- `st_intersect()` - returns intersection of two spatial objects
+- and many others ... :)
 
 ---
 # package `tmap`
 
-Nástroj pro tvorbu map - využívá formátu dat `sf` package.
-
+A tool for map creation - accepts data in the `sf` format.
 ```{r tmap, eval = T, echo = F, cache = T, message = F, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 
 # load spatial data included in the tmap package
@@ -112,21 +112,21 @@ tm_style_gray()
 ---
 # package `RCzechia`
 
-Vybrané objekty České republiky (kraje, okresy, obce...) ve formátu `sf` package.
+Spatial objects of the Czech Republic (okresy, kraje, obce etc.) in the `sf` format.
 ```{r rczechia, eval = T, echo = T, cache = T, out.width = '80%', fig.align="center", fig.asp = 0.55, dpi = 150}
 plot(RCzechia::okresy("low"), max.plot = 1)
 
 ```
 ---
-# Plánování demonstrace v R
+# Planning a Demo
 
-## **Vstup** - volební výsledky po obcích a částech obcí České republiky
-## **Výstup** - obec v ČR, v jejímž okolí se nachází nejvíce voličů
-## **Parametr** - dojezdová vzdálenost ("okolí" z předchozího bodu)
+## **Input** - official election results by Czech municipalities
+## **Output** - a municipality in the Czech republic with the most voters in its neighborhood
+## **Parameter** - distance (radius of the "neighborhood")
 
 ---
-# Relativní výsledky volby
-Výsledek v *% platných hlasů* - tohle bývá v novinách...
+# Relative Totals
+Election result as *% of the vote* - the most common visualization...
 ```{r map-relative, eval = T, echo = F, cache = T, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 
 # načtení dat z jlacko/Zeman2018 na GitHubu
@@ -177,7 +177,8 @@ mala_voda <- reky() %>% # méně významné řeky
   filter(NAZEV %in% c('Berounka', 'Sázava', 'Jizera', 'Otava', 'Ohře', 'Odra', 'Dyje', 'Svratka', 'Mže')) %>%
   st_transform(crs = 5514)
 
-mapRelative <- tm_shape(podklad) + tm_fill(col = "procent", title = "Volební zisk", n = 5) +
+
+mapRelative <- tm_shape(podklad) + tm_fill(col = "procent", title = "Election result", n = 5) +
   tm_shape(kraje) + tm_borders("grey80") +
   tm_shape(republika) + tm_borders("grey35") +
   tm_shape(velka_voda) + tm_lines(col = 'steelblue', lwd = 1.5, alpha = 0.6) + 
@@ -195,11 +196,11 @@ mapRelative
 ```
 
 ---
-# Absolutní výsledky volby
-Výsledek v *počtu platných hlasů* - protože na demonstraci přijdou lidé, ne procenta
+# Absolute Totals
+Election result as *total number of votes* - because people matter...
 ```{r map-absolute, eval = T, echo = F, cache = T, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 
-mapAbsolute <- tm_shape(podklad) + tm_fill(col = "hlasu", title = "Volební zisk", n = 5) +
+mapAbsolute <- tm_shape(podklad) + tm_fill(col = "hlasu", title = "Election result", n = 5) +
   tm_shape(kraje) + tm_borders("grey80") +
   tm_shape(republika) + tm_borders("grey35") +
   tm_shape(velka_voda) + tm_lines(col = 'steelblue', lwd = 1.5, alpha = 0.6) + 
@@ -223,7 +224,7 @@ podklad <- podklad %>%
   # body místo polygonů - snazší výpočet vzdálenosti, a jednoznačná interpretace průsečíků 
 ```
 ---
-# Funkce Šelmostroj
+# Šelmostroj function
 ```{r selmostroj, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 selmostroj <- function(vzdalenost) {
 
@@ -235,8 +236,8 @@ selmostroj <- function(vzdalenost) {
   
   stred <- podklad[which.max(podklad$suma_volicu), ] # tady!
 
-  writeLines(paste("Optimální místo demonstrace:", stred$NAZEV, 
-            "\nVoličů v okolí", vzdalenost / 1000, "kilometrů:",
+  writeLines(paste("The best place to hold the demo:", stred$NAZEV, 
+            "\nVoters in", vzdalenost / 1000, "kilometer neighborhood:",
             formatC(stred$suma_volicu, format = "f", big.mark = " ", digits = 0)))
  
   mapAbsolute <- mapAbsolute + # recyklace dříve vytvořené mapy
@@ -247,43 +248,43 @@ selmostroj <- function(vzdalenost) {
 }
 ```
 ---
-# Spádovost 2 kilometry
+# 2 kilometer range
 ```{r spad-2, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
 selmostroj(2 * 1000) # 2 kilometry
 ```
 ---
-# Spádovost 10 kilometrů
+# 10 kilometer range
 ```{r spad-10, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
 selmostroj(10 * 1000) # 10 kilometrů
 ```
 ---
-# Spádovost 30 kilometrů
+# 30 kilometer range
 ```{r spad-30, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
 selmostroj(30 * 1000) # 30 kilometrů
 ```
 ---
-# Spádovost 50 kilometrů
+# 50 kilometer range
 ```{r spad-50, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
 selmostroj(50 * 1000) # 50 kilometrů
 ```
 ---
-# Spádovost 150 kilometrů
+# 150 kilometer range
 ```{r spad-150, eval = T, echo = T, cache = T, message = F, warning = F, out.width = '85%', fig.align="center", fig.asp = 0.55, dpi = 150}
 selmostroj(150 * 1000) # 150 kilometrů
 ```
 ---
-# Závěr - erko jako GIS nástroj
+# Conclusion - R as a GIS tool 
 
-## ✘ více kódu a méně klikání v GUI
-## ✔ opakovatelnost výpočtu
-## ✔ iterace a automatizace 
-## ✔ R ekosystém a komunita
-## ☺ Open Source - v dobrém i zlém
+## ✘ more code and less GUI
+## ✔ reproducible and reusable
+## ✔ lends itself to automation
+## ✔ R ecosystem & community
+## ☺ Open Source - for good or ill
 
 ---
 class: inverse, middle, center
 
-# Děkuji za pozornost
+# Thank you for your attention
 
-Prezentaci včetně zdrojového kódu (v R Markdown) najdete na  
+This presentation (including R Markdown source code) is on GitHub
 [https://github.com/jlacko/r-meetup-demonstrace](https://github.com/jlacko/r-meetup-demonstrace)
