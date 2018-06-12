@@ -18,4 +18,9 @@ h3 {font-family: 'Roboto'; font-weight: normal; color:#191970; margin-top: -5px;
 .inverse {background-color: #191970;}
 
 /* první slajd bez čísla */
-.title-slide .remark-slide-number {display: none;}                                       
+.title-slide .remark-slide-number {display: none;}    
+
+/* první slajd bíle */
+.title-slide h1 {color: #FFFFFF; }
+.title-slide h2 {color: #FFFFFF; }
+.title-slide h3 {color: #FFFFFF; }
