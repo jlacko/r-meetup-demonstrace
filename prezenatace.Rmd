@@ -7,7 +7,6 @@ output:
   xaringan::moon_reader:
     css: ["default", "JLA-fonts.css"]
     lib_dir: libs
-    self_contained: true
     nature:
       highlightStyle: github
       highlightLines: true
@@ -48,13 +47,13 @@ library(tidyverse)
 # Souřadnicové systémy
 
 ### Zeměpisné
-- poloha bodu na kouli vůči průsečíku rovníku a nultého poledníku v **úhlových** mírách (šířka, délka)
+- poloha bodu na kouli vůči průsečíku rovníku a nultého poledníku v **úhlových** mírách (šířka, délka - zpravidla ve stupních)
 - obecně platné (popisují povrch koule)
 - příklad: [EPSG:4321](https://epsg.io/4326) - WGS84
 - používá například Google Maps, GPS (geocashing)
 
 ### Plošné / Kartézské
-- poloha bodu na ploše vůči počátku v **délkových** mírách (easting, northing)
+- poloha bodu na ploše vůči počátku v **délkových** mírách (easting, northing - zpravidla v metrech)
 - lokálně použitelné (zeměkoule *není* placatá; projekce je o kompromisech)
 - příklad: [EPSG:5513](https://epsg.io/5513-1623) - inž. Křovák / S-JTSK
 - obecně závazné pro geodezii, podmínka některých výpočtů
@@ -62,7 +61,7 @@ library(tidyverse)
 ---
 # package `sf`
 
-Implementace [Simple Features](https://cs.wikipedia.org/wiki/Simple_Features) standardu vektorových dat v R.
+Implementace [Simple Features](https://cs.wikipedia.org/wiki/Simple_Features) standardu prostorových dat v R.
 
 ### objekty třídy `sf`
 - rozšiřují `data.frame` = kombinují datové sloupce a "navíc" speciální sloupec *geometry* s prostorovými atributy
@@ -123,7 +122,24 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 ## **Vstup** - volební výsledky po obcích a částech obcí České republiky
 ## **Výstup** - obec v ČR, v jejímž okolí se nachází nejvíce voličů
 ## **Parametr** - dojezdová vzdálenost ("okolí" z předchozího bodu)
+---
+# Plán boje...
 
+### Získání dat:
+- datová složka: [CZSO.cz](https://volby.cz/opendata/prez2018/prez2018_opendata.htm)
+- prostorová složka: `RCzechia::obce_polygony()` a `RCzechia::casti()`
+- propojení datové složky s prostorovou: `dplyr::inner_join()`
+
+### Úvodní orientace
+- vizualizace: `tmap::tm_shape() + tmap::tm_fill()`
+
+### Příprava funkce *Šelmostroj*
+- výpočet hrubou silou: okolí pro **všechny** obce a části v ČR (6 387)
+- výběr optimální obce = maximálního součtu voličů v okolí
+- podání zprávy: konzole + graf
+
+### Uplatnění funkce *Šelmostroj*
+- opakovaně s různou hodnotu parametru
 ---
 # Relativní výsledky volby
 Výsledek v *% platných hlasů* - tohle bývá v novinách...
