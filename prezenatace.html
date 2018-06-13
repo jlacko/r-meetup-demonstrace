@@ -22,13 +22,22 @@ class: center, middle, inverse, title-slide
 
 # Agenda
 
+--
+
 ## Prostorová data (čím jsou jiná?)
+
+--
 
 ## erkové knihovny pro GIS práci
 
+--
+
 ## Příklad - výpočet místa demonstrace 
+
 ---
 # Prostorová data
+
+--
 
 ### Prostorová složka
 - bod = souřadnice X a Y
@@ -36,8 +45,12 @@ class: center, middle, inverse, title-slide
 - polygon = více bodů spojených v pořadí
 - rastr (speciální formát) = mřížka se začátkem a velikostí bloku
 
+--
+
 ### Datová složka
 - informace věcně svázaná s prostorovou složkou
+
+--
 
 ### Příklad
 - na souřadnicích X a Y roste strom, je to [smrk](https://cs.wikipedia.org/wiki/Smrk_ztepil%C3%BD) starý 25 let a napadený [kůrovcem](https://cs.wikipedia.org/wiki/L%C3%BDko%C5%BErout_smrkov%C3%BD)
@@ -46,11 +59,15 @@ class: center, middle, inverse, title-slide
 ---
 # Souřadnicové systémy
 
+--
+
 ### Zeměpisné
 - poloha bodu na kouli vůči průsečíku rovníku a nultého poledníku v **úhlových** mírách (šířka, délka - zpravidla ve stupních)
 - obecně platné (popisují povrch koule)
 - příklad: [EPSG:4321](https://epsg.io/4326) - WGS84
 - používá například Google Maps, GPS (geocashing)
+
+--
 
 ### Plošné / Kartézské
 - poloha bodu na ploše vůči počátku v **délkových** mírách (easting, northing - zpravidla v metrech)
@@ -63,10 +80,14 @@ class: center, middle, inverse, title-slide
 
 Implementace [Simple Features](https://cs.wikipedia.org/wiki/Simple_Features) standardu prostorových dat v R.
 
+--
+
 ### objekty třídy `sf`
 - rozšiřují `data.frame` = kombinují datové sloupce a "navíc" speciální sloupec *geometry* s prostorovými atributy
 - platí pro ně stejné funkce a techniky jako pro `data.frame` - například `dplyr::inner_join()` a `dplyr::filter()`
 - lze je uložit do databáze (doporučuju [PostgreSQL](https://www.postgresql.org/)) a chovat se k nim jako k tabulárním datům
+
+--
 
 ### funkce pro třídu `sf`
 - `st_transform()` - přechází mezi souřadnicovými systémy
@@ -95,24 +116,40 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 ---
 # Plánování demonstrace v R
 
+--
+
 ## **Vstup** - volební výsledky po obcích a částech obcí České republiky
+
+--
+
 ## **Výstup** - obec v ČR, v jejímž okolí se nachází nejvíce voličů
+
+--
+
 ## **Parametr** - dojezdová vzdálenost ("okolí" z předchozího bodu)
 ---
 # Plán boje...
 
-### Získání dat:
+--
+
+### Získání dat
 - datová složka: [CZSO.cz](https://volby.cz/opendata/prez2018/prez2018_opendata.htm)
 - prostorová složka: `RCzechia::obce_polygony()` a `RCzechia::casti()`
 - propojení datové složky s prostorovou: `dplyr::inner_join()`
 
+--
+
 ### Úvodní orientace
 - vizualizace: `tmap::tm_shape() + tmap::tm_fill()`
 
+--
+
 ### Příprava funkce *Šelmostroj*
-- výpočet hrubou silou: okolí pro **všechny** obce a části v ČR (6 387)
+- výpočet hrubou silou: okolí pro všechny obce a části v ČR (6 387 celkem)
 - výběr optimální obce = maximálního součtu voličů v okolí
 - podání zprávy: konzole + graf
+
+--
 
 ### Uplatnění funkce *Šelmostroj*
 - opakovaně s různou hodnotu parametru
@@ -219,16 +256,32 @@ selmostroj(150 * 1000) # 150 kilometrů
 ---
 # Závěr - erko jako GIS nástroj
 
+--
+
 ## ✘ více kódu a méně klikání v GUI
+
+--
+
 ## ✔ opakovatelnost výpočtu
+
+--
+
 ## ✔ iterace a automatizace 
+
+--
+
 ## ✔ R ekosystém a komunita
+
+--
+
 ## ☺ Open Source - v dobrém i zlém
 
 ---
 class: inverse, middle, center
 
 # Děkuji za pozornost
+
+--
 
 Prezentaci včetně zdrojového kódu (v R Markdown) najdete na  
 [https://github.com/jlacko/r-meetup-demonstrace](https://github.com/jlacko/r-meetup-demonstrace)

@@ -22,36 +22,51 @@ class: center, middle, inverse, title-slide
 
 # Agenda
 
+--
+
 ## Spatial data - what makes them special? 
 
+--
+
 ## R packages for GIS work
+
+--
 
 ## Example - calculating meeting place for a demonstration
 ---
 # Spatial Data
 
-### The Spatial Part
+--
+
+### Spatial Part
 - point = coordinates X and Y
 - line = multiple points with beginning and end
 - polygon = multiple points joined in order
 - raster (special format) = grid with start and cell size
 
-### The Data Part
+--
+
+### Data Part
 - information on the spatial part
+
+--
 
 ### Example
 - a tree grows on X and Y coordinates, it is a [spruce](https://en.wikipedia.org/wiki/Spruce) about 25 years old and it is infected by the [bark beetle](https://en.wikipedia.org/wiki/European_spruce_bark_beetle)  
 - coordinates XYZ demark a polygon with LAU1 code CZ0100, it is called [Prague](https://en.wikipedia.org/wiki/Prague) and it has 1 294 513 inhabitants
 
-
 ---
 # Coordinate Reference Systems
+
+--
 
 ### Angular (Geographic)
 - position of a point on globe in **angular** units (latitude, longitude)
 - universally valid (can be used for any part of the globe)
 - example: [EPSG:4321](https://epsg.io/4326) - WGS84
 - used in navigation and by Google Maps, GPS (geocashing)
+
+--
 
 ### Planar (Projected)
 - position of a point in 2D space in **distance** units (easting, northing)
@@ -64,10 +79,14 @@ class: center, middle, inverse, title-slide
 
 Implementation of the [Simple Features](https://en.wikipedia.org/wiki/Simple_Features) ISO standard of spatial data in R.
 
+--
+
 ### The `sf` class
 - extends the `data.frame` class = allowing both "regular" data columns and a special column *geometry* with spatial attributes in a single R object
 - all functions and techniques for `data.frame` still apply - e.g. `dplyr::inner_join()` and `dplyr::filter()`
 - can be saved into database (I suggest [PostgreSQL](https://www.postgresql.org/)) and treated as tabular data
+
+--
 
 ### Functions for class `sf`
 - `st_transform()` - switch between coordinate reference systems
@@ -95,30 +114,44 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 ---
 # Planning a Demo
 
+--
+
 ## **Input** - official election results by Czech municipalities
 
+--
+
 ## **Output** - a municipality in the Czech republic with the most voters in its neighborhood
+
+--
 
 ## **Parameter** - distance (radius of the "neighborhood")
 
 ---
 # Plan of Action
 
-### Acquire data:
+--
+
+### Data Acquisition
 - election results: [CZSO.cz](https://volby.cz/opendata/prez2018/prez2018_opendata.htm)
 - shapefile: `RCzechia::obce_polygony()` a `RCzechia::casti()`
 - connecting the dots: `dplyr::inner_join()`
 
-### Initial overview:
+--
+
+### Initial overview
 - visualization: `tmap::tm_shape() + tmap::tm_fill()`
 
+--
+
 ### Prepare function *Šelmostroj*
-- brute force approach: neigborhood for **every** Czech municipality (6 387)
+- brute force approach: neigborhood for every Czech municipality (6 387 in total)
 - find the one with max total of votes in neigborhood
-- report on the finding: console + draw a chart
+- report on the finding: print on console + draw a chart
+
+--
 
 ### Apply function *Šelmostroj*
-- iterate with different values of the distance parameter
+- iterate with different values of the *distance* parameter
 ---
 # Relative Totals
 Election result as *% of the vote* - the most common visualization...
@@ -222,16 +255,33 @@ selmostroj(150 * 1000) # 150 kilometrů
 ---
 # Conclusion - R as a GIS tool 
 
+--
+
 ## ✘ more code and less GUI
+
+--
+
 ## ✔ reproducible and reusable
+
+--
+
 ## ✔ lends itself to automation
+
+--
+
 ## ✔ R ecosystem &amp; community
+
+--
+
+
 ## ☺ Open Source - for good or ill
 
 ---
 class: inverse, middle, center
 
 # Thank you for your attention
+
+--
 
 This presentation (including R Markdown source code) is on GitHub
 [https://github.com/jlacko/r-meetup-demonstrace](https://github.com/jlacko/r-meetup-demonstrace)
