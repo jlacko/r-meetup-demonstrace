@@ -128,21 +128,21 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 ---
 # Plan of Action
 
-### Acquire data:
+### Acquire data
 - election results: [CZSO.cz](https://volby.cz/opendata/prez2018/prez2018_opendata.htm)
 - shapefile: `RCzechia::obce_polygony()` a `RCzechia::casti()`
 - connecting the dots: `dplyr::inner_join()`
 
-### Initial overview:
+### Initial overview
 - visualization: `tmap::tm_shape() + tmap::tm_fill()`
 
 ### Prepare function *Šelmostroj*
-- brute force approach: neigborhood for **every** Czech municipality (6 387)
+- brute force approach: neigborhood for every Czech municipality (6 387 in total)
 - find the one with max total of votes in neigborhood
-- report on the finding: console + draw a chart
+- report on the finding: print on console + draw a chart
 
 ### Apply function *Šelmostroj*
-- iterate with different values of the distance parameter
+- iterate with different values of the *distance* parameter
 ---
 # Relative Totals
 Election result as *% of the vote* - the most common visualization...

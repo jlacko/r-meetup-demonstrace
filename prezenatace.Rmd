@@ -125,7 +125,7 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 ---
 # Plán boje...
 
-### Získání dat:
+### Získání dat
 - datová složka: [CZSO.cz](https://volby.cz/opendata/prez2018/prez2018_opendata.htm)
 - prostorová složka: `RCzechia::obce_polygony()` a `RCzechia::casti()`
 - propojení datové složky s prostorovou: `dplyr::inner_join()`
@@ -134,7 +134,7 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 - vizualizace: `tmap::tm_shape() + tmap::tm_fill()`
 
 ### Příprava funkce *Šelmostroj*
-- výpočet hrubou silou: okolí pro **všechny** obce a části v ČR (6 387)
+- výpočet hrubou silou: okolí pro všechny obce a části v ČR (6 387 celkem)
 - výběr optimální obce = maximálního součtu voličů v okolí
 - podání zprávy: konzole + graf
 
