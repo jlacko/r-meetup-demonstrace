@@ -21,7 +21,4 @@ h3 {font-family: 'Roboto'; font-weight: normal; color:#191970; margin-top: -5px;
 .title-slide .remark-slide-number {display: none;}    
 
 /* první a poslední slajd bíle */
-.inverse h1 {color: #FFFFFF; }
-.inverse h2 {color: #FFFFFF; }
-.inverse h3 {color: #FFFFFF; }
-.inverse body {color: #FFFFFF; }
+.inverse {color: #FFFFFF; }
