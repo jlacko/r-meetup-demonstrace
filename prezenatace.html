@@ -28,7 +28,7 @@ class: center, middle, inverse, title-slide
 
 --
 
-## erkové knihovny pro GIS práci
+## Erkové knihovny pro GIS práci
 
 --
 
@@ -39,7 +39,7 @@ class: center, middle, inverse, title-slide
 
 --
 
-### Prostorová složka
+### Prostorová složka (*kde?*)
 - bod = souřadnice X a Y
 - čára = více bodů se začátkem a koncem
 - polygon = více bodů spojených v pořadí
@@ -47,7 +47,7 @@ class: center, middle, inverse, title-slide
 
 --
 
-### Datová složka
+### Datová složka (*co?*)
 - informace věcně svázaná s prostorovou složkou
 
 --
@@ -82,10 +82,10 @@ Implementace [Simple Features](https://cs.wikipedia.org/wiki/Simple_Features) st
 
 --
 
-### objekty třídy `sf`
-- rozšiřují `data.frame` = kombinují datové sloupce a "navíc" speciální sloupec *geometry* s prostorovými atributy
-- platí pro ně stejné funkce a techniky jako pro `data.frame` - například `dplyr::inner_join()` a `dplyr::filter()`
-- lze je uložit do databáze (doporučuju [PostgreSQL](https://www.postgresql.org/)) a chovat se k nim jako k tabulárním datům
+###  třída `sf`
+- rozšiřuje `data.frame` = kombinuje datové sloupce a "navíc" speciální sloupec *geometry* s prostorovými atributy
+- platí pro ni stejné funkce a techniky jako pro `data.frame` - například `dplyr::inner_join()` a `dplyr::filter()`
+- objekty lze uložit do databáze (doporučuju [PostgreSQL](https://www.postgresql.org/)) a chovat se k nim jako k tabulárním datům
 
 --
 
@@ -118,15 +118,21 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 
 --
 
-## **Vstup** - volební výsledky po obcích a částech obcí České republiky
+### **Motivace** - podpořit politika shromážděním příznivců
+&lt;br&gt;
+--
+
+### **Výstup** - obec v ČR, v jejímž okolí se nachází nejvíce politikových voličů
+&lt;br&gt;
 
 --
 
-## **Výstup** - obec v ČR, v jejímž okolí se nachází nejvíce voličů
+### **Vstup** - volební výsledky po obcích a částech obcí České republiky
+&lt;br&gt;
 
 --
 
-## **Parametr** - dojezdová vzdálenost ("okolí" z předchozího bodu)
+### **Parametr** - dojezdová vzdálenost ("okolí")
 ---
 # Plán boje...
 
