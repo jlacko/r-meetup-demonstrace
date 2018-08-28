@@ -101,7 +101,7 @@ Implementace [Simple Features](https://cs.wikipedia.org/wiki/Simple_Features) st
 
 Nástroj pro tvorbu map - využívá formátu dat `sf` package.
 
-```{r tmap, eval = T, echo = F, cache = T, message = F, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
+```{r tmap, eval = T, echo = F, cache = T, message = F, warning = F, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 
 # load spatial data included in the tmap package
 data("World", "metro")
@@ -186,7 +186,7 @@ plot(RCzechia::okresy("low"), max.plot = 1)
 ---
 # Relativní výsledky volby
 Výsledek v *% platných hlasů* - tohle bývá v novinách...
-```{r map-relative, eval = T, echo = F, cache = T, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
+```{r map-relative, eval = T, echo = F, cache = T, message = F, warning = F, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 
 # načtení dat z jlacko/Zeman2018 na GitHubu
 Volby2018 <- url("https://raw.githubusercontent.com/jlacko/Zeman2018/master/src/prezident.csv")
@@ -256,7 +256,7 @@ mapRelative
 ---
 # Absolutní výsledky volby
 Výsledek v *počtu platných hlasů* - protože na demonstraci přijdou lidé, ne procenta
-```{r map-absolute, eval = T, echo = F, cache = T, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
+```{r map-absolute, eval = T, echo = F, cache = T,, warning = F, out.width = '100%', fig.align="center", fig.asp = 0.55, dpi = 150}
 
 mapAbsolute <- tm_shape(podklad) + tm_fill(col = "hlasu", title = "Volební zisk", n = 5) +
   tm_shape(kraje) + tm_borders("grey80") +
